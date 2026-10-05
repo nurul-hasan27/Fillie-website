@@ -4,7 +4,7 @@
 
 The landing page for [Fillie](https://github.com/nurul-hasan27/Fillie-AI), the free Chrome extension that fills forms for you.
 
-**[Live site](https://YOUR-SITE.vercel.app)** · **[Extension repo](https://github.com/nurul-hasan27/Fillie-AI)**
+**[Live site](https://fillie-website.vercel.app/)** · **[Extension repo](https://github.com/nurul-hasan27/Fillie-AI)**
 
 </div>
 
@@ -29,10 +29,6 @@ npm run dev
 Everything personal is in one file: [`src/config.ts`](src/config.ts) (GitHub link, UPI ID, payment links).
 
 To update the download, copy the new `fillie-extension.zip` into `public/downloads/`.
-
-## Deploy
-
-Import this repo into [Vercel](https://vercel.com) and click **Deploy**. No settings needed.
 
 ## License
 
