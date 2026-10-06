@@ -2,14 +2,14 @@ import { SUPABASE } from '../config';
 
 export class CheckoutError extends Error {}
 
-async function call<T>(name: string, token: string): Promise<T> {
+async function call<T>(name: string, token: string, payload: object = {}): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20_000);
   try {
     const response = await fetch(`${SUPABASE.url}/functions/v1/${name}`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE.anonKey, 'Content-Type': 'application/json' },
-      body: '{}',
+      body: JSON.stringify(payload),
       signal: controller.signal,
     });
     const body = (await response.json().catch(() => ({}))) as T & { error?: string };
@@ -23,9 +23,13 @@ async function call<T>(name: string, token: string): Promise<T> {
   }
 }
 
-/** Starts the $5 checkout for the signed-in user and returns the payment page address. */
-export async function createCheckout(token: string): Promise<string> {
-  const { url } = await call<{ url: string }>('create-checkout', token);
+/**
+ * Starts the checkout for the signed-in user and returns the payment page address.
+ * INR unlocks UPI, netbanking, wallets and Indian cards; USD is international cards.
+ * The amount is decided by the server, not here.
+ */
+export async function createCheckout(token: string, currency: 'INR' | 'USD'): Promise<string> {
+  const { url } = await call<{ url: string }>('create-checkout', token, { currency });
   if (!url) throw new CheckoutError('Could not start checkout.');
   return url;
 }

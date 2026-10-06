@@ -282,3 +282,14 @@ code { background: rgba(0, 0, 0, 0.06); padding: 1px 6px; border-radius: 6px; fo
 .account-plan[data-paid='true'] { background: #dff3e6; color: #17795e; }
 .nav-account-skeleton { width: 86px; height: 34px; border-radius: 999px; background: #efedeb; }
 @media (max-width: 640px) { .account-name { display: none; } .account-chip { padding-right: 4px; } .nav .btn { margin-left: auto; } .nav .account-menu { margin-left: auto; } }
+
+/* Choose how to pay */
+.pay-options { display: grid; gap: 10px; margin-bottom: 4px; }
+.pay-option { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 14px 18px; text-align: left; border: 1px solid var(--line-2); border-radius: 16px; background: var(--white); color: var(--ink); font: inherit; cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+.pay-option:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--ink-3); }
+.pay-option:disabled { opacity: 0.6; cursor: wait; }
+.pay-option b { font: 500 26px var(--serif); letter-spacing: -0.02em; }
+.pay-option span { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+.pay-option small { font-size: 12.5px; color: var(--ink-3); }
+.pay-option[data-primary='true'] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.pay-option[data-primary='true'] span, .pay-option[data-primary='true'] small { color: #ffffffd9; }

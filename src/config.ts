@@ -10,6 +10,8 @@ export const SITE = {
   storeUrl: 'https://chromewebstore.google.com/detail/YOUR-EXTENSION-ID',
   freeFillsPerWeek: 3,
   price: '$5',
+  /** Rupee price: unlocks UPI, netbanking, wallets and Indian cards at checkout. Match RAZORPAY_INR_AMOUNT_MINOR on the server. */
+  priceInr: '₹449',
 };
 
 /**

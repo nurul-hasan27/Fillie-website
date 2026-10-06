@@ -217,7 +217,7 @@ export function App() {
             <article className="plan plan-pro">
               <span className="pill">Best value</span>
               <h3>Unlimited</h3>
-              <p className="plan-price">{SITE.price} <span>one-time</span></p>
+              <p className="plan-price">{SITE.priceInr} <span>one-time · or {SITE.price} for international cards</span></p>
               <ul className="checks">
                 <li>Unlimited form filling, forever</li>
                 <li>Application tracker with notes and ratings</li>
@@ -229,7 +229,7 @@ export function App() {
                   <span className="plan-how">Checking your plan…</span>
                 ) : !account.session ? (
                   <>
-                    <button className="btn btn-primary btn-lg" onClick={openPay}>Sign in &amp; pay {SITE.price}</button>
+                    <button className="btn btn-primary btn-lg" onClick={openPay}>Sign in &amp; pay</button>
                     <p className="plan-how">Sign in, pay once, then add Fillie to Chrome and sign in there. It unlocks automatically.</p>
                   </>
                 ) : unlocked ? (
@@ -240,7 +240,7 @@ export function App() {
                   </>
                 ) : (
                   <>
-                    <button className="btn btn-primary btn-lg" onClick={openPay}>Pay {SITE.price}</button>
+                    <button className="btn btn-primary btn-lg" onClick={openPay}>Pay {SITE.priceInr} or {SITE.price}</button>
                     <p className="plan-how">Signed in as {account.session.user.email}. This account is on the free plan. Pay once to unlock unlimited use.</p>
                   </>
                 )}

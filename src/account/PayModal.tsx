@@ -54,13 +54,13 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
     else if (mode === 'signup' && !result.data.session) setMessage({ tone: 'info', text: 'Check your email and confirm your address, then come back and sign in.' });
   };
 
-  const pay = async () => {
+  const pay = async (currency: 'INR' | 'USD') => {
     const token = account.session?.access_token;
     if (!token) return;
-    setBusy('pay');
+    setBusy(`pay-${currency}`);
     setMessage(null);
     try {
-      window.location.assign(await createCheckout(token));
+      window.location.assign(await createCheckout(token, currency));
     } catch (error) {
       setMessage({ tone: 'error', text: error instanceof CheckoutError ? error.message : 'Could not start checkout.' });
       setBusy('');
@@ -77,7 +77,7 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
           <Document size={84} />
           <div>
             <h2 id="pay-title">{account.paid ? 'Fillie is unlocked' : 'Unlock Fillie'}</h2>
-            <p>{account.paid ? 'Unlimited form filling, forever.' : `${SITE.price} once. Unlimited form filling, forever.`}</p>
+            <p>{account.paid ? 'Unlimited form filling, forever.' : `${SITE.priceInr} or ${SITE.price}, once. Unlimited form filling, forever.`}</p>
           </div>
         </div>
 
@@ -89,7 +89,7 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
           <p className="muted">Loading…</p>
         ) : !account.session ? (
           <>
-            <ol className="pay-steps"><li data-on="true">1. Sign in</li><li>2. Pay {SITE.price}</li><li>3. Add to Chrome</li></ol>
+            <ol className="pay-steps"><li data-on="true">1. Sign in</li><li>2. Pay</li><li>3. Add to Chrome</li></ol>
             <div className="oauth-list" role="group" aria-label="Sign in with">
               {(['google', 'github', 'apple'] as const).map((provider) => (
                 <button key={provider} className={`oauth-btn oauth-${provider}`} onClick={() => void oauth(provider)} disabled={Boolean(busy)}>
@@ -118,15 +118,23 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
           </>
         ) : (
           <>
-            <ol className="pay-steps"><li data-done="true">1. Sign in</li><li data-on="true">2. Pay {SITE.price}</li><li>3. Add to Chrome</li></ol>
+            <ol className="pay-steps"><li data-done="true">1. Sign in</li><li data-on="true">2. Pay</li><li>3. Add to Chrome</li></ol>
             <p className="pay-who">Signed in as <strong>{email}</strong></p>
             <div className="pay-box">
               <div><strong>Fillie, lifetime access</strong><span>One-time payment. No subscription.</span></div>
-              <b>{SITE.price}</b>
             </div>
-            <button className="btn btn-primary btn-lg btn-block" onClick={() => void pay()} disabled={busy === 'pay'}>
-              {busy === 'pay' ? 'Opening secure checkout…' : `Pay ${SITE.price} securely`}
-            </button>
+            <div className="pay-options">
+              <button className="pay-option" data-primary="true" onClick={() => void pay('INR')} disabled={Boolean(busy)}>
+                <b>{busy === 'pay-INR' ? 'Opening…' : `Pay ${SITE.priceInr}`}</b>
+                <span>UPI · Netbanking · Cards · Wallets</span>
+                <small>For payments from India</small>
+              </button>
+              <button className="pay-option" onClick={() => void pay('USD')} disabled={Boolean(busy)}>
+                <b>{busy === 'pay-USD' ? 'Opening…' : `Pay ${SITE.price}`}</b>
+                <span>International debit / credit card</span>
+                <small>For payments from outside India</small>
+              </button>
+            </div>
             <p className="pay-note">
               Payments are processed by Razorpay. By paying you agree to the <a href="/terms">Terms</a> and the{' '}
               <a href="/refund">{BUSINESS.refundDays}-day refund policy</a>.
