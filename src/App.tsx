@@ -3,7 +3,8 @@ import { SITE } from './config';
 import { Brain, Document, Folder, Hand, Heart, Key, Sparkle, Switch } from './components/Clay';
 import { Donate } from './components/Donate';
 import { PayModal } from './account/PayModal';
-import { useAccount } from './account/useAccount';
+import { displayName, useAccount } from './account/useAccount';
+import { AccountMenu } from './account/AccountMenu';
 import { confirmPayment } from './account/checkout';
 
 const FEATURES = [
@@ -119,7 +120,7 @@ export function App() {
           <a href="#pricing">Pricing</a>
           <a href="#donate">Support</a>
         </nav>
-        <a className="btn btn-primary btn-sm" href={SITE.storeUrl} target="_blank" rel="noreferrer">Add to Chrome</a>
+        <AccountMenu account={account} onSignIn={openPay} />
       </header>
 
       <main id="top">
@@ -224,15 +225,23 @@ export function App() {
                 <li>Pay once. No subscription.</li>
               </ul>
               <div className="plan-actions">
-                {unlocked ? (
+                {!account.ready || (account.session && account.paid === null) ? (
+                  <span className="plan-how">Checking your plan…</span>
+                ) : !account.session ? (
                   <>
-                    <span className="plan-done">✓ You have unlimited access</span>
+                    <button className="btn btn-primary btn-lg" onClick={openPay}>Sign in &amp; pay {SITE.price}</button>
+                    <p className="plan-how">Sign in, pay once, then add Fillie to Chrome and sign in there. It unlocks automatically.</p>
+                  </>
+                ) : unlocked ? (
+                  <>
+                    <span className="plan-done">✓ {displayName(account.session)} has unlimited access</span>
+                    <p className="plan-how">Signed in as {account.session.user.email}. Add Fillie to Chrome and sign in with this account.</p>
                     {GET}
                   </>
                 ) : (
                   <>
-                    <button className="btn btn-primary btn-lg" onClick={openPay}>Sign in &amp; pay {SITE.price}</button>
-                    <p className="plan-how">Sign in, pay once, then add Fillie to Chrome and sign in there. It unlocks automatically.</p>
+                    <button className="btn btn-primary btn-lg" onClick={openPay}>Pay {SITE.price}</button>
+                    <p className="plan-how">Signed in as {account.session.user.email}. This account is on the free plan. Pay once to unlock unlimited use.</p>
                   </>
                 )}
               </div>

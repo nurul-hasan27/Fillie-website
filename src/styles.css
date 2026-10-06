@@ -268,3 +268,17 @@ code { background: rgba(0, 0, 0, 0.06); padding: 1px 6px; border-radius: 6px; fo
 .legal-contact { display: grid; grid-template-columns: max-content 1fr; gap: 10px 24px; margin-top: 14px; }
 .legal-contact dt { font-weight: 600; } .legal-contact dd { margin: 0; color: var(--ink-2); }
 .legal-back { margin-top: 40px; }
+
+/* Account menu (nav) */
+.account-menu { position: relative; }
+.account-chip { display: inline-flex; align-items: center; gap: 8px; max-width: 220px; padding: 4px 14px 4px 4px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--white); font: 600 14px var(--sans); color: var(--ink); cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+.account-chip:hover { transform: translateY(-1px); border-color: var(--ink-3); }
+.account-avatar { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: 50%; background: var(--midnight); color: #fff; font-size: 13px; font-weight: 700; }
+.account-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; display: flex; flex-direction: column; gap: 6px; min-width: 240px; padding: 16px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14); animation: pop 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.account-pop strong { font-size: 15px; overflow-wrap: anywhere; }
+.account-email { color: var(--ink-2); font-size: 13px; overflow-wrap: anywhere; }
+.account-plan { align-self: flex-start; padding: 2px 12px; border-radius: 999px; background: #efedeb; color: var(--ink-2); font-size: 12.5px; font-weight: 600; margin: 4px 0 6px; }
+.account-plan[data-paid='true'] { background: #dff3e6; color: #17795e; }
+.nav-account-skeleton { width: 86px; height: 34px; border-radius: 999px; background: #efedeb; }
+@media (max-width: 640px) { .account-name { display: none; } .account-chip { padding-right: 4px; } .nav .btn { margin-left: auto; } .nav .account-menu { margin-left: auto; } }

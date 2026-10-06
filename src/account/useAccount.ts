@@ -2,6 +2,17 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
+/** A friendly name for the signed-in user: their profile name, else the part of the email before the @. */
+export function displayName(session: Session | null): string {
+  if (!session) return '';
+  const meta = (session.user.user_metadata ?? {}) as Record<string, unknown>;
+  for (const key of ['full_name', 'name', 'user_name', 'preferred_username']) {
+    const value = meta[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return (session.user.email ?? '').split('@')[0] || 'Account';
+}
+
 export interface Account {
   /** False until the saved session has been read. */
   ready: boolean;
