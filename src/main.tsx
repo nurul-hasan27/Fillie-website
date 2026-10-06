@@ -3,15 +3,23 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';
 
-// The dashboard is its own chunk, so visitors to the landing page never download it.
+// The dashboard and the policy pages are their own chunks, so visitors to the landing page never download them.
 const Admin = lazy(() => import('./admin/Admin').then((m) => ({ default: m.Admin })));
-const isAdmin = location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+const Legal = lazy(() => import('./legal/Legal').then((m) => ({ default: m.Legal })));
+
+const path = location.pathname.replace(/\/+$/, '');
+const legalPage = (['terms', 'privacy', 'refund', 'contact'] as const).find((id) => path === `/${id}`);
+const isAdmin = path === '/admin' || path.startsWith('/admin/');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     {isAdmin ? (
       <Suspense fallback={null}>
         <Admin />
+      </Suspense>
+    ) : legalPage ? (
+      <Suspense fallback={null}>
+        <Legal page={legalPage} />
       </Suspense>
     ) : (
       <App />

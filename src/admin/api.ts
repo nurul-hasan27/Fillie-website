@@ -1,5 +1,5 @@
-import { createClient, type Session, type SupabaseClient } from '@supabase/supabase-js';
-import { isSupabaseConfigured, SUPABASE } from '../config';
+import type { Session } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
 
 export interface Overview {
   users_total: number;
@@ -41,12 +41,7 @@ export interface AdminData {
 /** Demo data is only available while developing, never in a production build. */
 export const demoAllowed = import.meta.env.DEV && new URLSearchParams(location.search).has('demo');
 
-let client: SupabaseClient | null = null;
-export function supabase(): SupabaseClient | null {
-  if (!isSupabaseConfigured) return null;
-  client ??= createClient(SUPABASE.url, SUPABASE.anonKey, { auth: { persistSession: true, detectSessionInUrl: true } });
-  return client;
-}
+export { supabase };
 
 export async function getSession(): Promise<Session | null> {
   const sb = supabase();

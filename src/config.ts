@@ -17,6 +17,20 @@ export const SITE = {
  * design; the admin data itself is protected by database rules that only
  * let your verified Google account read it.
  */
+/**
+ * Business details shown on the policy pages. Payment providers (and customers)
+ * expect real contact details here, so fill these in before applying for live payments.
+ */
+export const BUSINESS = {
+  legalName: 'Nurul Hasan',
+  /** Where customers can reach you (shown on the Contact page). */
+  email: 'support@YOUR-DOMAIN.com',
+  phone: '',
+  address: '',
+  /** Days after paying during which a refund is given on request. */
+  refundDays: 7,
+};
+
 export const SUPABASE = {
   url: 'https://erhrkrcbcugckaczavsm.supabase.co',
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyaHJrcmNiY3VnY2thY3phdnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzM1OTcsImV4cCI6MjEwNjgwOTU5N30.uvq5Zpa9NnM6KJWxPx012fjIpG42crXW_tHKDKUfXP4',

@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SITE } from './config';
 import { Brain, Document, Folder, Hand, Heart, Key, Sparkle, Switch } from './components/Clay';
 import { Donate } from './components/Donate';
+import { PayModal } from './account/PayModal';
+import { useAccount } from './account/useAccount';
+import { confirmPayment } from './account/checkout';
 
 const FEATURES = [
   { icon: <Document size={120} />, tone: 'marigold', title: 'Fills in seconds', body: 'Name, email, education, links, work history. Fillie types them into any form from the profile you set up once.' },
@@ -26,16 +29,85 @@ const GET = (
   </a>
 );
 
+type Return = 'none' | 'confirming' | 'unlocked' | 'pending' | 'sign-in';
+
 export function App() {
-  // Razorpay sends the buyer back here after paying.
-  const [paid, setPaid] = useState(() => new URLSearchParams(location.search).get('payment') === 'success');
+  const account = useAccount();
+  const [payOpen, setPayOpen] = useState(false);
+  // Razorpay sends the buyer back here (/?payment=success) after paying.
+  const [back, setBack] = useState<Return>(() => (new URLSearchParams(location.search).get('payment') === 'success' ? 'confirming' : 'none'));
+
+  // Coming back from signing in with Google/GitHub/Apple: carry on to the payment step.
+  useEffect(() => {
+    if (!account.ready) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get('pay') === '1' && account.session) {
+      setPayOpen(true);
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+  }, [account.ready, account.session]);
+
+  // Coming back from paying: ask the server to confirm with Razorpay, so the user is
+  // unlocked right away even if the payment provider's notification is a few seconds behind.
+  useEffect(() => {
+    if (back !== 'confirming' || !account.ready) return;
+    const token = account.session?.access_token;
+    if (!token) {
+      setBack('sign-in');
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      for (let attempt = 0; attempt < 4 && !cancelled; attempt += 1) {
+        try {
+          if ((await confirmPayment(token)) > 0) break;
+        } catch {
+          /* try again */
+        }
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+      await account.refresh();
+      if (!cancelled) setBack('pending'); // upgraded to 'unlocked' below once the licence is visible
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [back, account.ready, account.session?.access_token]);
+
+  useEffect(() => {
+    if (account.paid && (back === 'pending' || back === 'confirming')) setBack('unlocked');
+  }, [account.paid, back]);
+
+  const openPay = () => setPayOpen(true);
+  const unlocked = account.paid === true;
+
   return (
     <>
-      {paid && (
-        <div className="paid-banner" role="status">
-          <strong>Payment received. Thank you!</strong>
-          <span>Open the Fillie extension, go to Account and press “I have paid”. It unlocks within a minute.</span>
-          <button onClick={() => setPaid(false)} aria-label="Dismiss">×</button>
+      {back !== 'none' && (
+        <div className="paid-banner" role="status" data-state={back}>
+          {back === 'confirming' && <strong>Confirming your payment…</strong>}
+          {back === 'unlocked' && (
+            <>
+              <strong>Payment received. Fillie is unlocked!</strong>
+              <span>Add the extension and sign in with {account.session?.user.email ?? 'the same account'}. No payment is needed there.</span>
+              <a className="btn btn-primary btn-sm" href={SITE.storeUrl} target="_blank" rel="noreferrer">Add to Chrome</a>
+            </>
+          )}
+          {back === 'pending' && (
+            <>
+              <strong>Payment received. Thank you!</strong>
+              <span>It can take a minute to appear. Refresh this page shortly, or sign in to the extension and press “I have paid”.</span>
+            </>
+          )}
+          {back === 'sign-in' && (
+            <>
+              <strong>Payment received. Thank you!</strong>
+              <span>Sign in with the account you paid with to see your unlocked plan.</span>
+              <button className="btn btn-primary btn-sm" onClick={openPay}>Sign in</button>
+            </>
+          )}
+          <button onClick={() => setBack('none')} aria-label="Dismiss">×</button>
         </div>
       )}
       <header className="nav">
@@ -151,10 +223,22 @@ export function App() {
                 <li>Cloud backup of your profile and resumes</li>
                 <li>Pay once. No subscription.</li>
               </ul>
-              {GET}
+              <div className="plan-actions">
+                {unlocked ? (
+                  <>
+                    <span className="plan-done">✓ You have unlimited access</span>
+                    {GET}
+                  </>
+                ) : (
+                  <>
+                    <button className="btn btn-primary btn-lg" onClick={openPay}>Sign in &amp; pay {SITE.price}</button>
+                    <p className="plan-how">Sign in, pay once, then add Fillie to Chrome and sign in there. It unlocks automatically.</p>
+                  </>
+                )}
+              </div>
             </article>
           </div>
-          <p className="plan-note">After your free fillings, sign in with email, Google, GitHub or Apple and unlock Fillie with a one-time card payment.</p>
+          <p className="plan-note">Start free with 3 fillings a week. Unlock unlimited any time, here or inside the extension, with a one-time card payment.</p>
         </section>
 
         <Donate />
@@ -163,8 +247,15 @@ export function App() {
       <footer className="footer">
         <span className="brand"><span className="mark" aria-hidden="true" />Fillie</span>
         <span>Made by {SITE.author}.</span>
-        <a href={SITE.storeUrl} target="_blank" rel="noreferrer">Chrome Web Store</a>
+        <nav className="footer-links" aria-label="Legal">
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/refund">Refunds</a>
+          <a href="/contact">Contact</a>
+        </nav>
       </footer>
+
+      {payOpen && <PayModal account={account} onClose={() => setPayOpen(false)} />}
 
     </>
   );
