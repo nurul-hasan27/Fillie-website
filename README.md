@@ -10,9 +10,8 @@ The landing page for [Fillie](https://github.com/nurul-hasan27/Fillie-AI), the f
 
 ## What's on it
 
-- A friendly intro with **Source code** and **Download & setup** buttons
-- Step-by-step install guide (Developer mode → Load unpacked)
-- Features, how it works, and privacy
+- A friendly intro with an **Add to Chrome** button (opens your Web Store listing)
+- Features, how it works and simple pricing
 - A **Support** section with UPI / QR, cards and international options
 
 Built with React, TypeScript and Vite.
@@ -26,9 +25,11 @@ npm run dev
 
 ## Make it yours
 
-Everything personal is in one file: [`src/config.ts`](src/config.ts) (GitHub link, UPI ID, payment links).
+Everything personal is in one file: [`src/config.ts`](src/config.ts): Web Store link, Supabase keys, UPI ID and payment links.
 
-To update the download, copy the new `fillie-extension.zip` into `public/downloads/`.
+## Admin dashboard
+
+`/admin` shows users, revenue, feedback, accuracy and offers. Sign in with Google as the admin address; the database (not the page) decides who can read the data, so nobody else can see it. In development, `npm run dev` then open `/admin?demo=1` to see sample data.
 
 ## License
 

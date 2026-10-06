@@ -6,10 +6,27 @@
 export const SITE = {
   name: 'Fillie',
   author: 'Nurul Hasan',
-  githubUrl: 'https://github.com/nurul-hasan27/Fillie-AI',
-  downloadUrl: 'https://github.com/nurul-hasan27/Fillie-AI/releases/download/v1.0.0/fillie-extension.zip',
-  version: '1.0.0',
+  /** Your Chrome Web Store listing. Replace once the extension is published. */
+  storeUrl: 'https://chromewebstore.google.com/detail/YOUR-EXTENSION-ID',
+  freeFillsPerWeek: 3,
+  price: '$5',
+  priceInr: '₹420',
 };
+
+/**
+ * Supabase project used by the /admin dashboard. The anon key is public by
+ * design; the admin data itself is protected by database rules that only
+ * let your verified Google account read it.
+ */
+export const SUPABASE = {
+  url: 'https://YOUR-PROJECT.supabase.co',
+  anonKey: 'YOUR-SUPABASE-ANON-KEY',
+};
+
+/** Shown on the admin sign-in screen. The database enforces the real check. */
+export const ADMIN_EMAIL = 'mdnurulhasan1111@gmail.com';
+
+export const isSupabaseConfigured = !SUPABASE.url.includes('YOUR-PROJECT');
 
 export const DONATE = {
   upiId: 'nh61@ybl',

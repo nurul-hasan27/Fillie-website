@@ -1,13 +1,11 @@
-import { useState } from 'react';
 import { SITE } from './config';
-import { Brain, Document, Folder, Hand, Key, Shield, Sparkle, Switch } from './components/Clay';
-import { SetupModal } from './components/SetupModal';
+import { Brain, Document, Folder, Hand, Heart, Key, Sparkle, Switch } from './components/Clay';
 import { Donate } from './components/Donate';
 
 const FEATURES = [
   { icon: <Document size={120} />, tone: 'marigold', title: 'Fills in seconds', body: 'Name, email, education, links, work history. Fillie types them into any form from the profile you set up once.' },
   { icon: <Hand size={120} />, tone: 'sky', title: 'You press submit', body: 'Fillie never clicks Submit, Next or Send. It fills, you check, you send.' },
-  { icon: <Shield size={120} />, tone: 'cream', title: 'Private by design', body: 'Everything lives in your browser. No servers, no accounts, no tracking. It even works with no internet.' },
+  { icon: <Heart size={120} />, tone: 'cream', title: 'Track every application', body: 'Status, interview dates, offers in LPA, notes and a rating for each company, all in one colourful list.' },
   { icon: <Key size={120} />, tone: 'coral', title: 'Bring your own AI', body: 'Paste free keys from Gemini, Cerebras, OpenRouter and more. When one runs out of quota, Fillie switches to the next.' },
   { icon: <Folder size={120} />, tone: 'sky', title: 'A resume for every role', body: 'Keep a Frontend resume, a Data resume, and more. Fillie asks which one to use and suggests the best match.' },
   { icon: <Brain size={120} />, tone: 'marigold', title: 'It learns', body: 'Answers you approve are remembered, so the second form is faster than the first.' },
@@ -21,15 +19,13 @@ const STEPS = [
 
 const PLATFORMS = ['Google Gemini', 'Cerebras', 'OpenRouter', 'Groq', 'Together AI', 'Any OpenAI-compatible'];
 
-export function App() {
-  const [setupOpen, setSetupOpen] = useState(false);
-  const github = (
-    <a className="btn btn-secondary btn-lg" href={SITE.githubUrl} target="_blank" rel="noreferrer">
-      <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.71 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 014 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0016 8c0-4.42-3.58-8-8-8z" /></svg>
-      Source code
-    </a>
-  );
+const GET = (
+  <a className="btn btn-primary btn-lg" href={SITE.storeUrl} target="_blank" rel="noreferrer">
+    Add to Chrome
+  </a>
+);
 
+export function App() {
   return (
     <>
       <header className="nav">
@@ -38,26 +34,26 @@ export function App() {
           <a href="#features">Features</a>
           <a href="#how">How it works</a>
           <a href="#ai">AI</a>
-          <a href="#privacy">Privacy</a>
+          <a href="#pricing">Pricing</a>
           <a href="#donate">Support</a>
         </nav>
-        <button className="btn btn-primary btn-sm" onClick={() => setSetupOpen(true)}>Download</button>
+        <a className="btn btn-primary btn-sm" href={SITE.storeUrl} target="_blank" rel="noreferrer">Add to Chrome</a>
       </header>
 
       <main id="top">
         <section className="hero">
           <div className="hero-copy">
-            <span className="pill">Free · Open source · Chrome</span>
+            <span className="pill">Chrome extension · 3 free fillings a week</span>
             <h1>Forms, <em>filled.</em><br />You press submit.</h1>
             <p>
-              Fillie reads the questions on any job application or form and types the answers from your profile and resume. Private, works offline, and
-              you stay in charge.
+              Fillie reads the questions on any job application or form and types the answers from your profile and resume. You review everything and
+              press submit yourself.
             </p>
             <div className="hero-cta">
-              <button className="btn btn-primary btn-lg" onClick={() => setSetupOpen(true)}>⬇ Download &amp; setup</button>
-              {github}
+              {GET}
+              <a className="btn btn-secondary btn-lg" href="#pricing">See pricing</a>
             </div>
-            <p className="hero-note">No store, no account. Loads in Chrome, Edge, Brave and Arc.</p>
+            <p className="hero-note">Works in Chrome, Edge and Brave. Start free, no card needed.</p>
           </div>
 
           <div className="hero-art" aria-hidden="true">
@@ -122,19 +118,33 @@ export function App() {
           </div>
         </section>
 
-        <section id="privacy" className="section privacy">
-          <Shield size={150} className="float" />
-          <h2 className="title">Your data stays yours</h2>
-          <ul className="checks">
-            <li>Stored only in your browser, never on a server.</li>
-            <li>API keys are used only by the extension’s background worker, never by web pages.</li>
-            <li>No key? Then no network request is ever made.</li>
-            <li>Fully open source under the MIT licence. Read every line.</li>
-          </ul>
-          <div className="hero-cta center">
-            <button className="btn btn-primary btn-lg" onClick={() => setSetupOpen(true)}>⬇ Download &amp; setup</button>
-            {github}
+        <section id="pricing" className="section pricing">
+          <h2 className="title">Simple pricing. Pay once.</h2>
+          <div className="plans">
+            <article className="plan">
+              <h3>Free</h3>
+              <p className="plan-price">{SITE.freeFillsPerWeek} <span>fillings every week</span></p>
+              <ul className="checks">
+                <li>Fill any form with your profile and resume</li>
+                <li>Resume picker and AI platform failover</li>
+                <li>No card needed</li>
+              </ul>
+              {GET}
+            </article>
+            <article className="plan plan-pro">
+              <span className="pill">Best value</span>
+              <h3>Unlimited</h3>
+              <p className="plan-price">{SITE.price} <span>one-time · or {SITE.priceInr} by UPI</span></p>
+              <ul className="checks">
+                <li>Unlimited form filling, forever</li>
+                <li>Application tracker with notes and ratings</li>
+                <li>Cloud backup of your profile and resumes</li>
+                <li>Pay once. No subscription.</li>
+              </ul>
+              {GET}
+            </article>
           </div>
+          <p className="plan-note">After your free fillings, sign in with email, Google, GitHub or Apple and unlock Fillie with UPI, cards or netbanking.</p>
         </section>
 
         <Donate />
@@ -142,11 +152,10 @@ export function App() {
 
       <footer className="footer">
         <span className="brand"><span className="mark" aria-hidden="true" />Fillie</span>
-        <span>Made by {SITE.author}. MIT licensed.</span>
-        <a href={SITE.githubUrl} target="_blank" rel="noreferrer">GitHub</a>
+        <span>Made by {SITE.author}.</span>
+        <a href={SITE.storeUrl} target="_blank" rel="noreferrer">Chrome Web Store</a>
       </footer>
 
-      {setupOpen && <SetupModal onClose={() => setSetupOpen(false)} />}
     </>
   );
 }

@@ -51,7 +51,7 @@ export function Donate() {
           <Heart size={150} className="float" />
           <h2>Like Fillie? Buy me a chai.</h2>
           <p>
-            Fillie is free and open source, built in spare time. A small tip helps me keep it working and add new things. No pressure, a GitHub star
+            Fillie is built and maintained by one person. If it saved you time, a small tip helps me keep it working and add new things. No pressure, a GitHub star
             helps too.
           </p>
         </div>
