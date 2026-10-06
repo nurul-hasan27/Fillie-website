@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { SITE } from './config';
 import { Brain, Document, Folder, Hand, Heart, Key, Sparkle, Switch } from './components/Clay';
 import { Donate } from './components/Donate';
@@ -26,8 +27,17 @@ const GET = (
 );
 
 export function App() {
+  // Stripe and Razorpay both send the buyer back here after paying.
+  const [paid, setPaid] = useState(() => new URLSearchParams(location.search).get('payment') === 'success');
   return (
     <>
+      {paid && (
+        <div className="paid-banner" role="status">
+          <strong>Payment received. Thank you!</strong>
+          <span>Open the Fillie extension, go to Account and press “I have paid”. It unlocks within a minute.</span>
+          <button onClick={() => setPaid(false)} aria-label="Dismiss">×</button>
+        </div>
+      )}
       <header className="nav">
         <a className="brand" href="#top" aria-label="Fillie home"><span className="mark" aria-hidden="true" />Fillie</a>
         <nav aria-label="Sections">

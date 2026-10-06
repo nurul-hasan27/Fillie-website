@@ -207,3 +207,8 @@ code { background: rgba(0, 0, 0, 0.06); padding: 1px 6px; border-radius: 6px; fo
 .plan-pro .pill { background: var(--ink); color: #fff; }
 .plan-note { text-align: center; color: var(--ink-2); max-width: 560px; margin: 22px auto 0; }
 @media (max-width: 760px) { .plans { grid-template-columns: 1fr; } }
+
+/* Shown after a successful payment */
+.paid-banner { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; padding: 12px clamp(16px, 4vw, 48px); background: #dff3e6; color: #0f4630; font-size: 15px; }
+.paid-banner span { flex: 1 1 280px; }
+.paid-banner button { margin-left: auto; border: 0; background: transparent; font-size: 22px; line-height: 1; cursor: pointer; color: inherit; }

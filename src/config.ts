@@ -10,7 +10,7 @@ export const SITE = {
   storeUrl: 'https://chromewebstore.google.com/detail/YOUR-EXTENSION-ID',
   freeFillsPerWeek: 3,
   price: '$5',
-  priceInr: '₹420',
+  priceInr: '₹449',
 };
 
 /**
@@ -19,8 +19,8 @@ export const SITE = {
  * let your verified Google account read it.
  */
 export const SUPABASE = {
-  url: 'https://YOUR-PROJECT.supabase.co',
-  anonKey: 'YOUR-SUPABASE-ANON-KEY',
+  url: 'https://erhrkrcbcugckaczavsm.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyaHJrcmNiY3VnY2thY3phdnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzM1OTcsImV4cCI6MjEwNjgwOTU5N30.uvq5Zpa9NnM6KJWxPx012fjIpG42crXW_tHKDKUfXP4',
 };
 
 /** Shown on the admin sign-in screen. The database enforces the real check. */
