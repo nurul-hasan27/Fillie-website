@@ -49,9 +49,7 @@ code { background: rgba(0, 0, 0, 0.06); padding: 1px 6px; border-radius: 6px; fo
 .nav nav a { text-decoration: none; color: var(--ink-2); font-weight: 500; font-size: 15px; }
 .nav nav a:hover { color: var(--ink); }
 .brand { display: inline-flex; align-items: center; gap: 10px; font: 500 24px var(--serif); letter-spacing: -0.02em; text-decoration: none; }
-.mark { width: 30px; height: 30px; border-radius: 9px; background: var(--midnight); position: relative; }
-.mark::before { content: ''; position: absolute; left: 7px; top: 8px; width: 14px; height: 2.5px; border-radius: 2px; background: #fff; box-shadow: 0 5px 0 #ffffffaa, 0 10px 0 #ffffff66; }
-.mark::after { content: ''; position: absolute; right: 5px; bottom: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--marigold); }
+.mark { width: 34px; height: 34px; border-radius: 9px; background: url('/logo.png') center / contain no-repeat; flex: none; }
 
 /* Hero */
 .hero { display: grid; grid-template-columns: 1.05fr 1fr; align-items: center; gap: 40px; max-width: 1240px; margin: 0 auto; padding: clamp(40px, 8vw, 96px) clamp(16px, 4vw, 48px); }
