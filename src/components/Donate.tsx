@@ -89,7 +89,7 @@ export function Donate() {
               {DONATE.cardLink ? (
                 <a className="btn btn-primary btn-lg" href={DONATE.cardLink} target="_blank" rel="noreferrer">Donate by card</a>
               ) : (
-                <p className="dev-note">Card checkout is not set up yet. Add a Razorpay or Stripe payment link as <code>cardLink</code> in <code>src/config.ts</code>.</p>
+                <p className="dev-note">Card checkout is not set up yet. Add a Razorpay payment link as <code>cardLink</code> in <code>src/config.ts</code>.</p>
               )}
               <div className="brands" aria-hidden="true"><span>Visa</span><span>Mastercard</span><span>RuPay</span><span>Amex</span></div>
             </div>

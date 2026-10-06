@@ -27,7 +27,7 @@ const GET = (
 );
 
 export function App() {
-  // Stripe and Razorpay both send the buyer back here after paying.
+  // Razorpay sends the buyer back here after paying.
   const [paid, setPaid] = useState(() => new URLSearchParams(location.search).get('payment') === 'success');
   return (
     <>
@@ -144,7 +144,7 @@ export function App() {
             <article className="plan plan-pro">
               <span className="pill">Best value</span>
               <h3>Unlimited</h3>
-              <p className="plan-price">{SITE.price} <span>one-time · or {SITE.priceInr} by UPI</span></p>
+              <p className="plan-price">{SITE.price} <span>one-time</span></p>
               <ul className="checks">
                 <li>Unlimited form filling, forever</li>
                 <li>Application tracker with notes and ratings</li>
@@ -154,7 +154,7 @@ export function App() {
               {GET}
             </article>
           </div>
-          <p className="plan-note">After your free fillings, sign in with email, Google, GitHub or Apple and unlock Fillie with UPI, cards or netbanking.</p>
+          <p className="plan-note">After your free fillings, sign in with email, Google, GitHub or Apple and unlock Fillie with a one-time card payment.</p>
         </section>
 
         <Donate />

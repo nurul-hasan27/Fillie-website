@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ADMIN_EMAIL, isSupabaseConfigured } from '../config';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isSupabaseConfigured } from '../config';
 import { Bars, HBars, Stars } from './charts';
 import {
   checkAdmin, demoAllowed, getSession, loadAdminData, signInWithGoogle, signOut, supabase,
@@ -41,25 +41,56 @@ export function Admin() {
     }
   }, []);
 
-  useEffect(() => {
-    (async () => {
+  // Which signed-in user the dashboard has already been opened for. Supabase announces
+  // "signed in" again on every page load and whenever the tab regains focus; without this
+  // the page would restart (or reload) each time.
+  const openedFor = useRef<string | null>(null);
+  const starting = useRef(false);
+
+  const start = useCallback(async () => {
+    if (starting.current) return;
+    starting.current = true;
+    try {
       if (demoAllowed) {
-        setEmail(ADMIN_EMAIL);
-        return load();
+        setEmail('demo');
+        await load();
+        return;
       }
       const session = await getSession();
-      if (!session) return setPhase('signed-out');
+      if (!session) {
+        openedFor.current = null;
+        setPhase('signed-out');
+        return;
+      }
+      openedFor.current = session.user.id;
       setEmail(session.user.email ?? '');
       // The database decides who the admin is; hiding the UI alone would protect nothing.
-      if (!(await checkAdmin())) return setPhase('denied');
+      if (!(await checkAdmin())) {
+        setPhase('denied');
+        return;
+      }
       await load();
-    })();
-    const sb = supabase();
-    const { data: sub } = sb?.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') window.location.reload();
-    }) ?? { data: null };
-    return () => sub?.subscription.unsubscribe();
+    } finally {
+      starting.current = false;
+    }
   }, [load]);
+
+  useEffect(() => {
+    void start();
+    const sb = supabase();
+    const { data: sub } =
+      sb?.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT') {
+          openedFor.current = null;
+          setData(null);
+          setPhase('signed-out');
+        } else if (event === 'SIGNED_IN' && session?.user.id && session.user.id !== openedFor.current) {
+          // Never call back into Supabase from inside this callback; hand off to the next tick.
+          setTimeout(() => void start(), 0);
+        }
+      }) ?? { data: null };
+    return () => sub?.subscription.unsubscribe();
+  }, [start]);
 
   if (phase === 'loading') return <div className="adm-center"><span className="adm-spinner" /><p>Loading…</p></div>;
 
@@ -69,14 +100,10 @@ export function Admin() {
         <div className="adm-gate">
           <span className="mark" aria-hidden="true" />
           <h1>{phase === 'denied' ? 'Not authorised' : 'Fillie admin'}</h1>
-          <p>
-            {phase === 'denied'
-              ? `${email} is not the admin account. Sign in with ${ADMIN_EMAIL}.`
-              : `Sign in with Google as ${ADMIN_EMAIL} to see the dashboard.`}
-          </p>
+          <p>{phase === 'denied' ? 'This account does not have access.' : 'Sign in to continue.'}</p>
           {!isSupabaseConfigured && <p className="adm-warn">Supabase is not configured yet (src/config.ts).</p>}
           {phase === 'denied' ? (
-            <button className="btn btn-secondary btn-lg" onClick={() => signOut().then(() => window.location.reload())}>Sign out</button>
+            <button className="btn btn-secondary btn-lg" onClick={() => void signOut()}>Use a different account</button>
           ) : (
             <button className="btn btn-primary btn-lg" onClick={signInWithGoogle} disabled={!isSupabaseConfigured}>Continue with Google</button>
           )}
@@ -110,7 +137,7 @@ export function Admin() {
         <div className="adm-user">
           <span>{email}</span>
           <button className="btn btn-ghost btn-sm" onClick={load}>Refresh</button>
-          {!demoAllowed && <button className="btn btn-ghost btn-sm" onClick={() => signOut().then(() => window.location.reload())}>Sign out</button>}
+          {!demoAllowed && <button className="btn btn-ghost btn-sm" onClick={() => void signOut()}>Sign out</button>}
         </div>
       </header>
       <main className="adm-main">
@@ -223,7 +250,7 @@ function Revenue({ data }: { data: AdminData }) {
             <tbody>{data.payments.map((p) => <tr key={p.id}><td>{day(p.created_at)}</td><td>{p.email ?? '—'}</td><td><span className={`tg ${p.provider === 'stripe' ? 'tg-sky' : 'tg-marigold'}`}>{p.provider}</span></td><td>{money(p.amount_minor, p.currency)}</td></tr>)}</tbody>
           </table>
         </div>
-        <p className="muted">Totals are before the payment provider's fees. Check Stripe and Razorpay for what you receive.</p>
+        <p className="muted">Totals are before the payment provider's fees. Check Razorpay for what you receive.</p>
       </section>
     </>
   );

@@ -10,7 +10,6 @@ export const SITE = {
   storeUrl: 'https://chromewebstore.google.com/detail/YOUR-EXTENSION-ID',
   freeFillsPerWeek: 3,
   price: '$5',
-  priceInr: '₹449',
 };
 
 /**
@@ -23,8 +22,6 @@ export const SUPABASE = {
   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyaHJrcmNiY3VnY2thY3phdnNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMzM1OTcsImV4cCI6MjEwNjgwOTU5N30.uvq5Zpa9NnM6KJWxPx012fjIpG42crXW_tHKDKUfXP4',
 };
 
-/** Shown on the admin sign-in screen. The database enforces the real check. */
-export const ADMIN_EMAIL = 'mdnurulhasan1111@gmail.com';
 
 export const isSupabaseConfigured = !SUPABASE.url.includes('YOUR-PROJECT');
 
