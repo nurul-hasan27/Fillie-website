@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SITE } from './config';
-import { Brain, Document, Folder, Hand, Heart, Key, Sparkle, Switch } from './components/Clay';
+import { Bell, Brain, Document, Folder, Hand, Heart, Key, Shield, Sparkle, Switch } from './components/Clay';
 import { Donate } from './components/Donate';
 import { PayModal } from './account/PayModal';
 import { displayName, useAccount } from './account/useAccount';
@@ -8,19 +8,31 @@ import { AccountMenu } from './account/AccountMenu';
 import { captureCodeFromUrl, confirmPayment } from './account/checkout';
 import { celebrate } from './ui/confetti';
 
+/** The word "AI", highlighted wherever it is the point. */
+const Ai = ({ children = 'AI' }: { children?: string }) => <mark className="hl-ai">{children}</mark>;
+
 const FEATURES = [
-  { icon: <Document size={120} />, tone: 'marigold', title: 'Fills in seconds', body: 'Name, email, education, links, work history. Fillie types them into any form from the profile you set up once.' },
-  { icon: <Hand size={120} />, tone: 'sky', title: 'You press submit', body: 'Fillie never clicks Submit, Next or Send. It fills, you check, you send.' },
-  { icon: <Heart size={120} />, tone: 'cream', title: 'Track every application', body: 'Status, interview dates, offers in LPA, notes and a rating for each company, all in one colourful list.' },
-  { icon: <Key size={120} />, tone: 'coral', title: 'Bring your own AI', body: 'Paste free keys from Gemini, Cerebras, OpenRouter and more. When one runs out of quota, Fillie switches to the next.' },
-  { icon: <Folder size={120} />, tone: 'sky', title: 'A resume for every role', body: 'Keep a Frontend resume, a Data resume, and more. Fillie asks which one to use and suggests the best match.' },
-  { icon: <Brain size={120} />, tone: 'marigold', title: 'It learns', body: 'Answers you approve are remembered, so the second form is faster than the first.' },
+  { icon: <Sparkle size={120} />, tone: 'coral', title: <><Ai /> that answers for you</>, body: <>Open-ended questions? Fillie’s <Ai /> writes the answer from your resume and profile, using only facts that are really there. No invented experience.</> },
+  { icon: <Document size={120} />, tone: 'marigold', title: 'Fills in seconds', body: <>Our <Ai /> reads the form, then types your name, email, education, links and work history into any application you open.</> },
+  { icon: <Hand size={120} />, tone: 'sky', title: 'You press submit', body: 'Fillie never clicks Submit, Next or Send. The AI fills, you check, you send.' },
+  { icon: <Heart size={120} />, tone: 'cream', title: <><Ai /> application tracker</>, body: <>Every form you fill is saved on its own: company, role, status, offers in LPA. <Ai /> adds notes about the job and a rating, with colour tags for Applied, Interview, Offer and Rejected.</> },
+  { icon: <Bell size={120} />, tone: 'marigold', title: 'Never miss an interview', body: <>Add the date once. Fillie notifies you a day before and an hour before, and shows what is coming up the moment you open it.</> },
+  { icon: <Key size={120} />, tone: 'coral', title: <>Bring your own <Ai /></>, body: 'Paste free keys from Gemini, Cerebras, OpenRouter and more. When one runs out of quota, Fillie switches to the next.' },
+  { icon: <Folder size={120} />, tone: 'sky', title: 'A resume for every role', body: <>Keep a Frontend resume, a Data resume, and more. The <Ai /> suggests the best match and asks which one to use.</> },
+  { icon: <Brain size={120} />, tone: 'marigold', title: 'It learns', body: <>Answers you approve are remembered, so the second form is faster than the first. The more you use it, the smarter your <Ai /> gets.</> },
+  { icon: <Shield size={120} />, tone: 'cream', title: 'Backed up', body: 'Sign in and your profile, resumes and learned answers are backed up, so a new laptop is ready in a minute.' },
 ];
 
 const STEPS = [
   { n: '1', title: 'Set up once', body: 'Add your details and paste your resume.' },
-  { n: '2', title: 'Open any form', body: 'Click Fillie or press Alt + Shift + F.' },
+  { n: '2', title: 'Open any form', body: <>Click Fillie or press Alt + Shift + F. The <Ai /> reads every question.</> },
   { n: '3', title: 'Review and submit', body: 'Green is done, yellow needs a glance, red is yours to answer.' },
+];
+
+const TRACKER_ROWS = [
+  { company: 'Razorpay', role: 'SDE I', status: 'Interview', tone: 'marigold', note: 'Payments team · Go and React · remote friendly' },
+  { company: 'Zoho', role: 'Software Developer', status: 'Applied', tone: 'sky', note: 'Product company, strong DSA round expected' },
+  { company: 'Infosys', role: 'Systems Engineer', status: 'Offer', tone: 'green', note: '3.6 LPA · joining in January' },
 ];
 
 const PLATFORMS = ['Google Gemini', 'Cerebras', 'OpenRouter', 'Groq', 'Together AI', 'Any OpenAI-compatible'];
@@ -133,12 +145,17 @@ export function App() {
       <main id="top">
         <section className="hero">
           <div className="hero-copy">
-            <span className="pill">Chrome extension · 3 free fillings a week</span>
-            <h1>Forms, <em>filled.</em><br />You press submit.</h1>
+            <span className="pill"><Ai /> Chrome extension · 3 free fillings a week</span>
+            <h1><Ai /> fills your <em>forms.</em><br />You press submit.</h1>
             <p>
-              Fillie reads the questions on any job application or form and types the answers from your profile and resume. You review everything and
-              press submit yourself.
+              Fillie’s <Ai /> reads the questions on any job application or form and types the answers from your profile and resume. You review everything and
+              press submit yourself. It also records every application, writes <Ai /> notes about each one, and reminds you before every interview.
             </p>
+            <ul className="hero-ai" aria-label="What the AI does">
+              <li><Ai /> answers</li>
+              <li><Ai /> tracker</li>
+              <li>Interview alerts</li>
+            </ul>
             <div className="hero-cta">
               {GET}
               <a className="btn btn-secondary btn-lg" href="#pricing">See pricing</a>
@@ -152,7 +169,7 @@ export function App() {
               <div className="mock-bar"><i /><i /><i /></div>
               <div className="mock-row"><b>Full name</b><span className="filled">Ada Lovelace</span></div>
               <div className="mock-row"><b>Email</b><span className="filled">ada@example.com</span></div>
-              <div className="mock-row"><b>Years of React</b><span className="doubt">4</span></div>
+              <div className="mock-row"><b>Years of React</b><span className="doubt">4 · <Ai /> guess</span></div>
               <div className="mock-row"><b>Expected salary</b><span className="todo">your turn</span></div>
               <div className="mock-submit">Submit</div>
             </div>
@@ -165,13 +182,47 @@ export function App() {
         <section id="features" className="section">
           <h2 className="title">Everything it does, nothing it shouldn’t</h2>
           <div className="bento">
-            {FEATURES.map((feature) => (
-              <article key={feature.title} className="tile" data-tone={feature.tone}>
+            {FEATURES.map((feature, index) => (
+              <article key={index} className="tile" data-tone={feature.tone}>
                 <div className="tile-art">{feature.icon}</div>
                 <h3>{feature.title}</h3>
                 <p>{feature.body}</p>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section id="tracker" className="section tracker">
+          <div className="tracker-copy">
+            <span className="pill"><Ai /> job-search copilot</span>
+            <h2 className="title left">Every application recorded. Every interview remembered.</h2>
+            <p>
+              The moment you fill a form, Fillie saves it to your own database. Its <Ai /> reads the posting and writes short notes, guesses a rating for the
+              role, and tags the status in colour. You add the interview date once, and Fillie nudges you a day ahead and an hour before.
+            </p>
+            <ul className="checks">
+              <li><Ai /> notes and a rating on every application</li>
+              <li>Colour tags: Applied, Interview, Offer, Rejected</li>
+              <li>Offers recorded in LPA, never guessed</li>
+              <li>Upcoming interviews on top whenever you open Fillie</li>
+              <li>Backed up to your account when you sign in</li>
+            </ul>
+          </div>
+          <div className="tracker-art" aria-hidden="true">
+            <div className="db-card">
+              <div className="db-head"><b>Your applications</b><span className="tg-pill">12 saved</span></div>
+              {TRACKER_ROWS.map((row) => (
+                <div key={row.company} className="db-row">
+                  <div className="db-main"><strong>{row.company}</strong><span>{row.role}</span><em><Ai />{' '}note: {row.note}</em></div>
+                  <span className={`db-tag db-${row.tone}`}>{row.status}</span>
+                </div>
+              ))}
+            </div>
+            <div className="up-card">
+              <b>Upcoming interviews</b>
+              <div className="up-row"><span className="up-date"><i>OCT</i>14</span><span><strong>Razorpay</strong><small>SDE I · 4:30 PM</small></span><span className="up-when">Tomorrow</span></div>
+            </div>
+            <div className="notif"><Bell size={44} /><span><strong>Interview in 1 hour · Razorpay</strong><small>SDE I · 4:30 PM</small></span></div>
           </div>
         </section>
 
@@ -191,9 +242,9 @@ export function App() {
         <section id="ai" className="section ai">
           <div className="ai-copy">
             <Switch size={150} className="float" />
-            <h2 className="title left">Never stuck on a quota</h2>
+            <h2 className="title left">Free <Ai /> that never gets stuck</h2>
             <p>
-              Add a free key for each AI platform and put them in the order you like. Fillie asks the first one, and if it runs out or fails it quietly
+              Add a free key for each <Ai /> platform and put them in the order you like. Fillie asks the first one, and if it runs out or fails it quietly
               moves to the next. Every answer shows which platform and model wrote it.
             </p>
           </div>
@@ -215,8 +266,8 @@ export function App() {
               <h3>Free</h3>
               <p className="plan-price">{SITE.freeFillsPerWeek} <span>fillings every week</span></p>
               <ul className="checks">
-                <li>Fill any form with your profile and resume</li>
-                <li>Resume picker and AI platform failover</li>
+                <li><Ai /> fills any form from your profile and resume</li>
+                <li>Resume picker and <Ai /> platform failover</li>
                 <li>No card needed</li>
               </ul>
               {GET}
@@ -226,8 +277,8 @@ export function App() {
               <h3>Unlimited</h3>
               <p className="plan-price">{SITE.priceInr} <span>one-time · or {SITE.price} for international cards</span></p>
               <ul className="checks">
-                <li>Unlimited form filling, forever</li>
-                <li>Application tracker with notes and ratings</li>
+                <li>Unlimited <Ai /> form filling, forever</li>
+                <li><Ai /> application tracker with notes, ratings and interview reminders</li>
                 <li>Cloud backup of your profile and resumes</li>
                 <li>Pay once. No subscription.</li>
               </ul>

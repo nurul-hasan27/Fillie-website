@@ -3,8 +3,9 @@ import { BUSINESS, SITE, isSupabaseConfigured } from '../config';
 import { supabase } from '../lib/supabase';
 import { Document } from '../components/Clay';
 import { AppleLogo, GitHubLogo, GoogleLogo } from './Brands';
-import { createCheckout, CheckoutError, quoteCheckout, REJECT_TEXT, saveCodes, savedCodes, type Quote } from './checkout';
-import { money } from '../lib/format';
+import { createCheckout, CheckoutError, endsLabel, quoteCheckout, readOffers, REJECT_TEXT, saveCodes, savedCodes, type PublicOffer, type Quote } from './checkout';
+import { money, percent } from '../lib/format';
+import { rpc } from '../influencer/api';
 import type { Account } from './useAccount';
 
 type Provider = 'google' | 'github' | 'apple';
@@ -21,6 +22,10 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
   const [codeBusy, setCodeBusy] = useState(false);
   const [codeNote, setCodeNote] = useState('');
   const [codesSupported, setCodesSupported] = useState(true);
+  // "Explore offers": the offers the admin made public (creator codes are never listed).
+  const [offersOpen, setOffersOpen] = useState(false);
+  const [offers, setOffers] = useState<PublicOffer[] | null>(null);
+  const [offersError, setOffersError] = useState('');
   const signedIn = Boolean(account.session) && account.paid === false;
   const token = account.session?.access_token;
 
@@ -64,6 +69,22 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
   };
 
   const applied = (quotes.INR ?? quotes.USD)?.applied ?? [];
+
+  const exploreOffers = async () => {
+    setOffersOpen(true);
+    setOffersError('');
+    try {
+      setOffers(readOffers(await rpc<unknown>('list_public_offers')));
+    } catch {
+      setOffers([]);
+      setOffersError('Could not load offers. Please try again.');
+    }
+  };
+
+  const useOffer = async (code: string) => {
+    setOffersOpen(false);
+    await refreshQuotes([code, ...applied.map((a) => a.code).filter((c) => c !== code)]);
+  };
 
   const refreshQuotes = async (codes: string[]) => {
     if (!token) return;
@@ -166,13 +187,36 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
           </>
         ) : (
           <>
+            {offersOpen && (
+              <div className="offers-panel">
+                <button className="link-btn" onClick={() => setOffersOpen(false)}>← Back to payment</button>
+                <h3>Offers for you</h3>
+                <p className="offers-note"><b>Tip:</b> enter a creator's promo code too, for an additional discount on top of any offer.</p>
+                {offersError && <p className="code-note" role="alert">{offersError}</p>}
+                {!offers && !offersError && <p className="muted">Loading…</p>}
+                {offers && offers.length === 0 && !offersError && <p className="muted">No public offers right now. Check back soon, or enter a creator's code.</p>}
+                <ul className="offers-list">
+                  {(offers ?? []).map((o) => (
+                    <li key={o.code}>
+                      <span className="offer-pct">{percent(o.discount_bps)}<small>off</small></span>
+                      <span className="offer-main"><b>{o.title || 'Offer'}</b><small>{[endsLabel(o.ends_at), o.left !== null ? `${o.left} left` : ''].filter(Boolean).join(' · ') || 'No end date'}</small><code>{o.code}</code></span>
+                      {applied.some((a) => a.code === o.code) ? <span className="offer-applied">Applied ✓</span> : <button className="btn btn-primary btn-sm" onClick={() => void useOffer(o.code)}>Apply</button>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {!offersOpen && <>
             <ol className="pay-steps"><li data-done="true">1. Sign in</li><li data-on="true">2. Pay</li><li>3. Add to Chrome</li></ol>
             <p className="pay-who">Signed in as <strong>{email}</strong></p>
             <div className="pay-box">
               <div><strong>Fillie, lifetime access</strong><span>One-time payment. No subscription.</span></div>
             </div>
             {codesSupported && <div className="code-box">
-              <label htmlFor="pay-code">Have a creator code or an offer code?</label>
+              <div className="code-head">
+                <label htmlFor="pay-code">Have a creator code or an offer code? <span className="code-multi">(multiple coupons applicable)</span></label>
+                <button className="link-btn explore" onClick={() => void exploreOffers()}>Explore offers</button>
+              </div>
               <div className="code-row">
                 <input id="pay-code" value={codeInput} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} onKeyDown={(e) => e.key === 'Enter' && void applyCode()} maxLength={16} placeholder="Enter code" autoComplete="off" spellCheck={false} />
                 <button className="btn btn-secondary btn-sm" onClick={() => void applyCode()} disabled={codeBusy || !codeInput.trim()}>{codeBusy ? '…' : 'Apply'}</button>
@@ -206,6 +250,7 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
               Payments are processed by Razorpay. By paying you agree to the <a href="/terms">Terms</a> and the{' '}
               <a href="/refund">{BUSINESS.refundDays}-day refund policy</a>.
             </p>
+            </>}
           </>
         )}
 
