@@ -37,7 +37,7 @@ export interface WithdrawalDetail {
 }
 export interface Flag { kind: 'self_referral' | 'multiple_codes' | 'cancellations' | 'refunds' | 'burst' | 'fresh_accounts'; severity: 'high' | 'medium' | 'low'; influencer_id: string | null; influencer: string; code: string | null; count: number; at: string | null; detail: string }
 export interface InboxMessage { id: number; influencer_id: string; influencer: string; email: string; subject: string; message: string; resolved: boolean; created_at: string }
-export interface OfferRow { id: string; code: string; title: string; discount_bps: number; starts_at: string | null; ends_at: string | null; max_uses: number | null; active: boolean; note: string; created_at: string; uses: number; discount_given: MoneyMap; revenue: MoneyMap }
+export interface OfferRow { id: string; code: string; title: string; discount_bps: number; starts_at: string | null; ends_at: string | null; max_uses: number | null; active: boolean; listed: boolean; note: string; created_at: string; uses: number; discount_given: MoneyMap; revenue: MoneyMap }
 export type Settings = Record<string, any>;
 
 export const infOverview = () => rpc<InfOverview>('admin_influencer_overview');

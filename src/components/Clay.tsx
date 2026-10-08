@@ -147,3 +147,14 @@ export function Folder({ size, className }: Props) {
     </Svg>
   );
 }
+
+export function Bell({ size, className }: Props) {
+  return (
+    <Svg size={size} className={className} id="cbl" a="#ffd36b" b="#ffa400">
+      <path d="M80 22c-24 0-40 18-40 42v22l-12 20h104l-12-20V64c0-24-16-42-40-42z" fill="url(#cbl)" />
+      <rect x="64" y="112" width="32" height="16" rx="8" fill="#f64932" />
+      <circle cx="116" cy="38" r="14" fill="#f64932" />
+      <Shine x={58} y={54} r={12} />
+    </Svg>
+  );
+}

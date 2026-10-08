@@ -3,7 +3,7 @@ import { day, moneyMap, num, percent } from '../lib/format';
 import { CopyButton, Modal, messageOf, useToast } from '../ui/ui';
 import { deleteOffer, discountOffers, saveOffer, setOfferActive, type OfferRow } from './influencer-api';
 
-const blank = { id: '', code: '', title: '', percent: '10', starts_at: '', ends_at: '', max_uses: '', note: '', active: true };
+const blank = { id: '', code: '', title: '', percent: '10', starts_at: '', ends_at: '', max_uses: '', note: '', active: true, listed: true };
 type FormState = typeof blank;
 
 /** datetime-local wants "YYYY-MM-DDTHH:mm" in local time. */
@@ -66,14 +66,14 @@ export function Offers() {
               return (
                 <tr key={o.id}>
                   <td><code>{o.code}</code> <CopyButton text={o.code} label="Copy" className="link-btn dark" /></td>
-                  <td>{o.title || '—'}{o.note && <div className="muted">{o.note}</div>}</td>
+                  <td>{o.title || '—'}{o.note && <div className="muted">{o.note}</div>}<span className={`tg ${o.listed ? 'tg-sky' : 'tg-sand'}`} style={{ marginTop: 4 }}>{o.listed ? 'Public' : 'Hidden'}</span></td>
                   <td><b>{percent(o.discount_bps)}</b> off</td>
                   <td>{o.starts_at ? day(o.starts_at) : 'now'} → {o.ends_at ? day(o.ends_at) : 'no end'}</td>
                   <td>{o.uses}{o.max_uses !== null ? ` / ${o.max_uses}` : ''}</td>
                   <td>{moneyMap(o.discount_given)}</td>
                   <td><span className={`tg tg-${s.tone}`}>{s.text}</span></td>
                   <td className="row-actions">
-                    <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ id: o.id, code: o.code, title: o.title, percent: String(o.discount_bps / 100), starts_at: toLocal(o.starts_at), ends_at: toLocal(o.ends_at), max_uses: o.max_uses === null ? '' : String(o.max_uses), note: o.note, active: o.active })}>Edit</button>
+                    <button className="btn btn-ghost btn-sm" onClick={() => setEdit({ id: o.id, code: o.code, title: o.title, percent: String(o.discount_bps / 100), starts_at: toLocal(o.starts_at), ends_at: toLocal(o.ends_at), max_uses: o.max_uses === null ? '' : String(o.max_uses), note: o.note, active: o.active, listed: o.listed })}>Edit</button>
                     <button className="btn btn-ghost btn-sm" onClick={async () => { try { await setOfferActive(o.id, !o.active); reload(); } catch (e) { toast.show(messageOf(e), 'error'); } }}>{o.active ? 'Turn off' : 'Turn on'}</button>
                     {o.uses === 0 && <button className="btn btn-ghost btn-sm" onClick={async () => { if (!confirm(`Delete ${o.code}?`)) return; try { await deleteOffer(o.id); reload(); } catch (e) { toast.show(messageOf(e), 'error'); } }}>Delete</button>}
                   </td>
@@ -105,7 +105,7 @@ function OfferForm({ initial, onClose, onSaved }: { initial: FormState; onClose:
     try {
       const saved = await saveOffer({
         id: f.id || undefined, code: f.code.trim(), title: f.title.trim(), discount_percent: pct, starts_at: fromLocal(f.starts_at), ends_at: fromLocal(f.ends_at),
-        max_uses: f.max_uses ? Number(f.max_uses) : '', note: f.note.trim(), active: f.active,
+        max_uses: f.max_uses ? Number(f.max_uses) : '', note: f.note.trim(), active: f.active, listed: f.listed,
       });
       onSaved(saved.code);
     } catch (e) {
@@ -124,6 +124,7 @@ function OfferForm({ initial, onClose, onSaved }: { initial: FormState; onClose:
         <label className="f-field"><span>Ends</span><input type="datetime-local" value={f.ends_at} onChange={(e) => set('ends_at', e.target.value)} /><small>Empty = never ends</small></label>
         <label className="f-field"><span>Maximum uses</span><input value={f.max_uses} onChange={(e) => set('max_uses', e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder="Unlimited" /></label>
         <label className="f-agree" style={{ alignSelf: 'end' }}><input type="checkbox" checked={f.active} onChange={(e) => set('active', e.target.checked)} /><span>Offer is on</span></label>
+        <label className="f-agree full"><input type="checkbox" checked={f.listed} onChange={(e) => set('listed', e.target.checked)} /><span><b>Show in "Explore offers"</b> so customers can find and apply it. Turn off for a private code you share yourself.</span></label>
         <label className="f-field full"><span>Note</span><input value={f.note} onChange={(e) => set('note', e.target.value)} maxLength={500} placeholder="Optional" /></label>
       </div>
       {error && <p className="f-error" role="alert">{error}</p>}
