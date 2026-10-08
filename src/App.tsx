@@ -5,7 +5,7 @@ import { Donate } from './components/Donate';
 import { PayModal } from './account/PayModal';
 import { displayName, useAccount } from './account/useAccount';
 import { AccountMenu } from './account/AccountMenu';
-import { confirmPayment } from './account/checkout';
+import { captureCodeFromUrl, confirmPayment } from './account/checkout';
 
 const FEATURES = [
   { icon: <Document size={120} />, tone: 'marigold', title: 'Fills in seconds', body: 'Name, email, education, links, work history. Fillie types them into any form from the profile you set up once.' },
@@ -34,6 +34,8 @@ type Return = 'none' | 'confirming' | 'unlocked' | 'pending' | 'sign-in';
 
 export function App() {
   const account = useAccount();
+  // A creator's share link (?code=ASHA10) is remembered so the code is applied at checkout.
+  useEffect(() => { captureCodeFromUrl(); }, []);
   const [payOpen, setPayOpen] = useState(false);
   // Razorpay sends the buyer back here (/?payment=success) after paying.
   const [back, setBack] = useState<Return>(() => (new URLSearchParams(location.search).get('payment') === 'success' ? 'confirming' : 'none'));
@@ -119,6 +121,7 @@ export function App() {
           <a href="#ai">AI</a>
           <a href="#pricing">Pricing</a>
           <a href="#donate">Support</a>
+          <a href="/influencer">Creators</a>
         </nav>
         <AccountMenu account={account} onSignIn={openPay} />
       </header>
@@ -261,6 +264,7 @@ export function App() {
           <a href="/privacy">Privacy</a>
           <a href="/refund">Refunds</a>
           <a href="/contact">Contact</a>
+          <a href="/influencer">Earn with Fillie</a>
         </nav>
       </footer>
 

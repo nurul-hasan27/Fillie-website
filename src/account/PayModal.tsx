@@ -3,7 +3,8 @@ import { BUSINESS, SITE, isSupabaseConfigured } from '../config';
 import { supabase } from '../lib/supabase';
 import { Document } from '../components/Clay';
 import { AppleLogo, GitHubLogo, GoogleLogo } from './Brands';
-import { createCheckout, CheckoutError } from './checkout';
+import { createCheckout, CheckoutError, quoteCheckout, REJECT_TEXT, saveCodes, savedCodes, type Quote } from './checkout';
+import { money } from '../lib/format';
 import type { Account } from './useAccount';
 
 type Provider = 'google' | 'github' | 'apple';
@@ -14,6 +15,14 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [busy, setBusy] = useState('');
   const [message, setMessage] = useState<{ tone: 'error' | 'info'; text: string } | null>(null);
+  // Creator promo code and offer code. The server prices them; this only remembers what it accepted.
+  const [quotes, setQuotes] = useState<Partial<Record<'INR' | 'USD', Quote>>>({});
+  const [codeInput, setCodeInput] = useState('');
+  const [codeBusy, setCodeBusy] = useState(false);
+  const [codeNote, setCodeNote] = useState('');
+  const [codesSupported, setCodesSupported] = useState(true);
+  const signedIn = Boolean(account.session) && account.paid === false;
+  const token = account.session?.access_token;
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose();
@@ -54,13 +63,52 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
     else if (mode === 'signup' && !result.data.session) setMessage({ tone: 'info', text: 'Check your email and confirm your address, then come back and sign in.' });
   };
 
+  const applied = (quotes.INR ?? quotes.USD)?.applied ?? [];
+
+  const refreshQuotes = async (codes: string[]) => {
+    if (!token) return;
+    setCodeBusy(true);
+    try {
+      const [inr, usd] = await Promise.all([quoteCheckout(token, 'INR', codes), quoteCheckout(token, 'USD', codes)]);
+      // An older checkout function does not know about codes and answers with a payment link instead of a price.
+      if (!inr?.order || !usd?.order) {
+        setCodesSupported(false);
+        return;
+      }
+      setQuotes({ INR: inr, USD: usd });
+      saveCodes(inr.applied.map((a) => a.code));
+      const bad = inr.rejected.filter((r) => r.reason !== 'same_kind');
+      setCodeNote(bad.length ? `${bad[0]!.code}: ${REJECT_TEXT[bad[0]!.reason] ?? 'Could not apply that code.'}` : '');
+      return inr;
+    } catch (error) {
+      setCodeNote(error instanceof CheckoutError ? error.message : 'Could not check that code.');
+      setQuotes({});
+    } finally {
+      setCodeBusy(false);
+    }
+  };
+
+  // Prices (and any code remembered from a creator's link) are fetched as soon as the payment step shows.
+  useEffect(() => {
+    if (signedIn && token) void refreshQuotes(savedCodes());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signedIn, token]);
+
+  const applyCode = async () => {
+    const code = codeInput.replace(/\s+/g, '').toUpperCase();
+    if (!code) return;
+    const result = await refreshQuotes([code, ...applied.map((a) => a.code).filter((c) => c !== code)]);
+    if (result?.applied.some((a) => a.code === code)) setCodeInput('');
+  };
+
+  const removeCode = (code: string) => void refreshQuotes(applied.map((a) => a.code).filter((c) => c !== code));
+
   const pay = async (currency: 'INR' | 'USD') => {
-    const token = account.session?.access_token;
     if (!token) return;
     setBusy(`pay-${currency}`);
     setMessage(null);
     try {
-      window.location.assign(await createCheckout(token, currency));
+      window.location.assign(await createCheckout(token, currency, applied.map((a) => a.code)));
     } catch (error) {
       setMessage({ tone: 'error', text: error instanceof CheckoutError ? error.message : 'Could not start checkout.' });
       setBusy('');
@@ -123,14 +171,33 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
             <div className="pay-box">
               <div><strong>Fillie, lifetime access</strong><span>One-time payment. No subscription.</span></div>
             </div>
+            {codesSupported && <div className="code-box">
+              <label htmlFor="pay-code">Have a creator code or an offer code?</label>
+              <div className="code-row">
+                <input id="pay-code" value={codeInput} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} onKeyDown={(e) => e.key === 'Enter' && void applyCode()} maxLength={16} placeholder="Enter code" autoComplete="off" spellCheck={false} />
+                <button className="btn btn-secondary btn-sm" onClick={() => void applyCode()} disabled={codeBusy || !codeInput.trim()}>{codeBusy ? '…' : 'Apply'}</button>
+              </div>
+              {codeNote && <p className="code-note" data-tone="error" role="alert">{codeNote}</p>}
+              {applied.length > 0 && (
+                <ul className="code-applied">
+                  {applied.map((a) => (
+                    <li key={a.code}>
+                      <span><b>{a.code}</b> · {a.kind === 'promo' ? 'creator code' : a.title}</span>
+                      <em>− {a.kind === 'promo' ? `${a.discount_bps / 100}%` : `${a.discount_bps / 100}% extra`}</em>
+                      <button className="link-btn" onClick={() => removeCode(a.code)} aria-label={`Remove ${a.code}`}>Remove</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>}
             <div className="pay-options">
               <button className="pay-option" data-primary="true" onClick={() => void pay('INR')} disabled={Boolean(busy)}>
-                <b>{busy === 'pay-INR' ? 'Opening…' : `Pay ${SITE.priceInr}`}</b>
+                <b>{busy === 'pay-INR' ? 'Opening…' : <>Pay {quotes.INR && quotes.INR.order.finalMinor !== quotes.INR.order.listMinor ? <><s className="was">{SITE.priceInr}</s> {money(quotes.INR.order.finalMinor, 'INR')}</> : SITE.priceInr}</>}</b>
                 <span>UPI · Netbanking · Cards · Wallets</span>
                 <small>For payments from India</small>
               </button>
               <button className="pay-option" onClick={() => void pay('USD')} disabled={Boolean(busy)}>
-                <b>{busy === 'pay-USD' ? 'Opening…' : `Pay ${SITE.price}`}</b>
+                <b>{busy === 'pay-USD' ? 'Opening…' : <>Pay {quotes.USD && quotes.USD.order.finalMinor !== quotes.USD.order.listMinor ? <><s className="was">{SITE.price}</s> {money(quotes.USD.order.finalMinor, 'USD')}</> : SITE.price}</>}</b>
                 <span>International debit / credit card</span>
                 <small>For payments from outside India</small>
               </button>
