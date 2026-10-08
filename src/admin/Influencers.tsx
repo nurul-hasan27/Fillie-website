@@ -104,7 +104,7 @@ function InfluencerList({ tick, onOpen }: { tick: number; onOpen: (id: string) =
           <input className="adm-input" placeholder="Search name, code or city…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
       </div>
-      {rows.length === 0 && <p className="muted">{data.length === 0 ? 'No influencers have joined yet. Share fillie-website.vercel.app/influencer with creators.' : 'Nobody matches.'}</p>}
+      {rows.length === 0 && <p className="muted">{data.length === 0 ? 'No influencers have joined yet. Share www.fillie.app/influencer with creators.' : 'Nobody matches.'}</p>}
       <div className="inf-boxes">
         {rows.map((r) => (
           <button key={r.id} className="inf-box" data-status={r.status} onClick={() => onOpen(r.id)} aria-label={`Open ${r.name}`}>
