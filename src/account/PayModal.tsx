@@ -68,7 +68,8 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
     else if (mode === 'signup' && !result.data.session) setMessage({ tone: 'info', text: 'Check your email and confirm your address, then come back and sign in.' });
   };
 
-  const applied = (quotes.INR ?? quotes.USD)?.applied ?? [];
+  // The creator code is listed first, then the offer, whatever order they were typed in.
+  const applied = [...((quotes.INR ?? quotes.USD)?.applied ?? [])].sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'promo' ? -1 : 1));
 
   const exploreOffers = async () => {
     setOffersOpen(true);
@@ -99,7 +100,16 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
       setQuotes({ INR: inr, USD: usd });
       saveCodes(inr.applied.map((a) => a.code));
       const bad = inr.rejected.filter((r) => r.reason !== 'same_kind');
-      setCodeNote(bad.length ? `${bad[0]!.code}: ${REJECT_TEXT[bad[0]!.reason] ?? 'Could not apply that code.'}` : '');
+      // Only one creator code and one offer can be used: a new code of the same kind replaces the old one.
+      const replaced = inr.rejected.filter((r) => r.reason === 'same_kind').map((r) => r.code);
+      const typed = codes[0];
+      setCodeNote(
+        bad.length
+          ? `${bad[0]!.code}: ${REJECT_TEXT[bad[0]!.reason] ?? 'Could not apply that code.'}`
+          : typed && replaced.length && inr.applied.some((a) => a.code === typed)
+            ? `Only one creator code and one offer can be used, so ${typed} replaced ${replaced.join(', ')}.`
+            : '',
+      );
       return inr;
     } catch (error) {
       setCodeNote(error instanceof CheckoutError ? error.message : 'Could not check that code.');
@@ -214,7 +224,7 @@ export function PayModal({ account, onClose }: { account: Account; onClose: () =
             </div>
             {codesSupported && <div className="code-box">
               <div className="code-head">
-                <label htmlFor="pay-code">Have a creator code or an offer code? <span className="code-multi">(multiple coupons applicable)</span></label>
+                <label htmlFor="pay-code">Have a creator code or an offer code?</label>
                 <button className="link-btn explore" onClick={() => void exploreOffers()}>Explore offers</button>
               </div>
               <div className="code-row">
