@@ -3,10 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fillie — fills online forms for you. You press submit.</title>
-    <meta name="description" content="Fillie is a Chrome extension that fills job applications and forms from your profile and resume, tracks your applications, and lets you press submit. 3 free fillings a week, then a one-time payment." />
-    <meta property="og:title" content="Fillie — fills online forms for you" />
-    <meta property="og:description" content="Fills your forms and tracks your applications. You always press submit." />
+    <title>Fillie: AI Job Application Autofill and Tracker for Chrome</title>
+    <meta name="description" content="Fillie is an AI Chrome extension that autofills job applications from your resume, answers questions with AI, tracks every application and reminds you before interviews. 3 free fills a week." />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="keywords" content="AI job application autofill, AI form filler, job application tracker, Chrome extension, autofill resume, interview reminder" />
+    <meta property="og:title" content="Fillie: AI that fills your job applications and tracks them" />
+    <meta property="og:site_name" content="Fillie" />
+    <meta property="og:description" content="AI fills your job applications from your resume, writes notes on each one and reminds you before interviews. You always press submit." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.fillie.app/" />
     <link rel="canonical" href="https://www.fillie.app/" />
@@ -17,12 +20,36 @@
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <meta property="og:image" content="https://www.fillie.app/icon-512.png" />
     <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Fillie: AI job application autofill and tracker" />
+    <meta name="twitter:description" content="AI fills your job applications, tracks every one and reminds you before interviews. You press submit." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Fillie",
+        "url": "https://www.fillie.app/",
+        "description": "Fillie is an AI Chrome extension that autofills job applications and online forms from your profile and resume, answers questions with AI, records every application with AI notes and ratings, and reminds you before interviews.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Chrome, Edge, Brave",
+        "image": "https://www.fillie.app/icon-512.png",
+        "featureList": ["AI autofill for job applications and forms", "AI-written answers from your resume", "Application tracker with AI notes and ratings", "Interview reminders", "Multiple resumes", "Bring your own free AI keys"],
+        "offers": [
+          { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "INR", "description": "3 AI fillings every week" },
+          { "@type": "Offer", "name": "Unlimited", "price": "449", "priceCurrency": "INR", "description": "One-time payment, unlimited AI form filling" }
+        ],
+        "publisher": { "@type": "Organization", "name": "Fillie", "url": "https://www.fillie.app/", "email": "fillie.company@gmail.com", "logo": "https://www.fillie.app/icon-512.png" }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <h1>Fillie: AI job application autofill and tracker</h1>
+      <p>Fillie is an AI Chrome extension that fills job applications and online forms from your profile and resume, answers open-ended questions with AI, records every application with AI notes and a rating, and reminds you before each interview. You always review everything and press submit yourself. Start with 3 free fillings a week.</p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
