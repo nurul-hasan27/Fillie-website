@@ -27,6 +27,7 @@ const FAQ = [
   { q: 'Is Fillie free?', a: `Yes, to start: you get ${SITE.freeFillsPerWeek} free AI fillings every week with no card. Unlimited use is a one-time payment of ${SITE.priceInr} (UPI, netbanking, cards and wallets) or ${SITE.price} for international cards. There is no subscription.` },
   { q: 'Which AI does Fillie use?', a: 'You bring your own free keys from Google Gemini, Cerebras, OpenRouter, Groq, Together AI or any OpenAI-compatible service, and put them in the order you like. If one runs out of quota Fillie switches to the next, and every answer shows which platform and model wrote it.' },
   { q: 'Can Fillie track my job applications and interviews?', a: 'Yes. Every form you fill is saved to your own application database with the company, role, status, offers in LPA, AI-written notes and a rating, all with colour tags. Add an interview date once and Fillie notifies you a day before and an hour before, and shows upcoming interviews as soon as you open it.' },
+  { q: 'Can I save my answers to read before the interview?', a: 'Yes. While Fillie fills a form, tap the heart next to any answer to save that exact question and answer with the application. Open Interview prep on the application card any time to read what you wrote, so you can answer the interviewer with the same confidence.' },
   { q: 'Can I keep different resumes for different roles?', a: 'Yes. Keep a Frontend resume, a Data resume and more. Fillie suggests the best match for each job and asks which one to send to the AI.' },
   { q: 'Which browsers does Fillie work in?', a: 'Chrome, Edge, Brave and other Chromium-based browsers.' },
 ];
@@ -38,9 +39,9 @@ const STEPS = [
 ];
 
 const TRACKER_ROWS = [
-  { company: 'Razorpay', role: 'SDE I', status: 'Interview', tone: 'marigold', note: 'Payments team · Go and React · remote friendly' },
-  { company: 'Zoho', role: 'Software Developer', status: 'Applied', tone: 'sky', note: 'Product company, strong DSA round expected' },
-  { company: 'Infosys', role: 'Systems Engineer', status: 'Offer', tone: 'green', note: '3.6 LPA · joining in January' },
+  { company: 'Razorpay', role: 'SDE I', status: 'Interview', tone: 'marigold', note: 'Payments team · Go and React · remote friendly', saved: 4 },
+  { company: 'Zoho', role: 'Software Developer', status: 'Applied', tone: 'sky', note: 'Product company, strong DSA round expected', saved: 2 },
+  { company: 'Infosys', role: 'Systems Engineer', status: 'Offer', tone: 'green', note: '3.6 LPA · joining in January', saved: 5 },
 ];
 
 const PLATFORMS = ['Google Gemini', 'Cerebras', 'OpenRouter', 'Groq', 'Together AI', 'Any OpenAI-compatible'];
@@ -207,9 +208,10 @@ export function App() {
             <h2 className="title left">Every job application recorded. Every interview remembered.</h2>
             <p>
               The moment you fill a form, Fillie saves it to your own database. Its AI reads the posting and writes short notes, guesses a rating for the
-              role, and tags the status in colour. You add the interview date once, and Fillie nudges you a day ahead and an hour before.
+              role, and tags the status in colour. You tap the heart on the answers you want to remember, add the interview date once, and Fillie nudges you a day ahead and an hour before.
             </p>
             <ul className="checks">
+              <li><strong>Interview prep:</strong> tap the heart on any answer while Fillie fills the form, and it is saved with that application. Read your own answers again before the interview.</li>
               <li>AI notes and a rating on every application</li>
               <li>Colour tags: Applied, Interview, Offer, Rejected</li>
               <li>Offers recorded in LPA, never guessed</li>
@@ -223,7 +225,10 @@ export function App() {
               {TRACKER_ROWS.map((row) => (
                 <div key={row.company} className="db-row">
                   <div className="db-main"><strong>{row.company}</strong><span>{row.role}</span><em>AI{' '}note: {row.note}</em></div>
-                  <span className={`db-tag db-${row.tone}`}>{row.status}</span>
+                  <span className="db-side">
+                    <span className={`db-tag db-${row.tone}`}>{row.status}</span>
+                    <span className="prep-pill"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M8 13.6C3.2 10.2 2 7.3 3.4 5.3a2.9 2.9 0 0 1 4.6-.2 2.9 2.9 0 0 1 4.6.2c1.4 2-.2 4.9-4.6 8.3Z" fill="currentColor" /></svg>Interview prep<b>{row.saved}</b></span>
+                  </span>
                 </div>
               ))}
             </div>

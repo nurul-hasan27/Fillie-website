@@ -358,3 +358,9 @@ code { background: rgba(0, 0, 0, 0.06); padding: 1px 6px; border-radius: 6px; fo
 .faq-list details[open] summary::after { content: '–'; }
 .faq-list summary::-webkit-details-marker { display: none; }
 .faq-list p { margin-top: 10px; color: var(--ink-2); font-size: 16px; }
+
+/* Interview prep pill in the tracker preview */
+.db-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.prep-pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 4px 2px 9px; border-radius: 999px; border: 1.5px solid #f64932; background: var(--coral-soft); color: #b3261e; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.prep-pill svg { color: #f64932; }
+.prep-pill b { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #f64932; color: #fff; font-size: 11px; }
