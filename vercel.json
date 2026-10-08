@@ -12,6 +12,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/influencer",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/influencer/(.*)",
+      "destination": "/index.html"
+    },
+    {
       "source": "/terms",
       "destination": "/index.html"
     },

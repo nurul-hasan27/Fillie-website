@@ -5,15 +5,22 @@ import {
   checkAdmin, demoAllowed, getSession, loadAdminData, signInWithGoogle, signOut, supabase,
   type AdminData, type OfferRow,
 } from './api';
+import { Influencers } from './Influencers';
+import { Offers } from './Offers';
+import { infOverview, type InfOverview } from './influencer-api';
+import { moneyMap as moneyMapFmt } from '../lib/format';
+import '../ui/forms.css';
 import './admin.css';
 
-type Tab = 'overview' | 'users' | 'payments' | 'feedback' | 'stories';
+type Tab = 'overview' | 'users' | 'payments' | 'influencers' | 'offers' | 'feedback' | 'stories';
 type Phase = 'loading' | 'signed-out' | 'denied' | 'ready' | 'error';
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'overview', label: 'Overview' },
   { id: 'users', label: 'Users' },
   { id: 'payments', label: 'Revenue' },
+  { id: 'influencers', label: 'Influencers' },
+  { id: 'offers', label: 'Offers' },
   { id: 'feedback', label: 'Feedback' },
   { id: 'stories', label: 'Success stories' },
 ];
@@ -141,9 +148,11 @@ export function Admin() {
         </div>
       </header>
       <main className="adm-main">
-        {tab === 'overview' && <Overview data={data} />}
+        {tab === 'overview' && <Overview data={data} onGoInfluencers={() => setTab('influencers')} />}
         {tab === 'users' && <Users data={data} />}
         {tab === 'payments' && <Revenue data={data} />}
+        {tab === 'influencers' && <Influencers />}
+        {tab === 'offers' && <Offers />}
         {tab === 'feedback' && <Feedback data={data} />}
         {tab === 'stories' && <Stories data={data} />}
       </main>
@@ -161,8 +170,11 @@ function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: 
   );
 }
 
-function Overview({ data }: { data: AdminData }) {
+function Overview({ data, onGoInfluencers }: { data: AdminData; onGoInfluencers: () => void }) {
   const o = data.overview;
+  // Loaded on its own, so the dashboard still works before the influencer database setup has been applied.
+  const [inf, setInf] = useState<InfOverview | null>(null);
+  useEffect(() => { infOverview().then(setInf).catch(() => setInf(null)); }, []);
   const conversion = o.users_total ? Math.round((o.paid_users / o.users_total) * 100) : 0;
   const accuracy = o.answers_filled ? Math.round((1 - o.answers_edited / o.answers_filled) * 100) : null;
   const funnel = o.funnel;
@@ -179,6 +191,15 @@ function Overview({ data }: { data: AdminData }) {
         <Kpi tone="green" label="Answer accuracy" value={accuracy === null ? '—' : `${accuracy}%`} sub={o.answers_filled ? `${num(o.answers_edited)} of ${num(o.answers_filled)} corrected` : 'no data yet'} />
         <Kpi tone="sky" label="Offers" value={num(o.offers_count)} sub={o.offers_avg_lpa ? `avg ${o.offers_avg_lpa} LPA` : 'no packages yet'} />
       </section>
+
+      {inf && (
+        <section className="kpis" aria-label="Influencers">
+          <Kpi tone="green" label="Active influencers" value={num(inf.active_influencers)} sub={`${num(inf.total_influencers)} joined`} />
+          <Kpi tone="marigold" label="Commission generated" value={moneyMapFmt(inf.commission_generated, '₹0')} sub={`${num(inf.orders)} orders · ${moneyMapFmt(inf.commission_owed, '₹0')} still owed`} />
+          <Kpi tone="coral" label="Pending withdrawals" value={num(inf.pending_withdrawals)} sub={inf.pending_withdrawals ? 'waiting for you' : 'all clear'} />
+          <button className="kpi kpi-link" data-tone="sand" onClick={onGoInfluencers}><span className="kpi-label">Influencer programme</span><strong>Open →</strong><span className="kpi-sub">{num(inf.active_offers)} live offers</span></button>
+        </section>
+      )}
 
       <section className="adm-grid">
         <article className="panel"><h2>New users · 30 days</h2><Bars data={o.signups_daily.map((d) => ({ label: d.day, value: d.count }))} color="var(--blue)" /></article>
