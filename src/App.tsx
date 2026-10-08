@@ -6,6 +6,7 @@ import { PayModal } from './account/PayModal';
 import { displayName, useAccount } from './account/useAccount';
 import { AccountMenu } from './account/AccountMenu';
 import { captureCodeFromUrl, confirmPayment } from './account/checkout';
+import { celebrate } from './ui/confetti';
 
 const FEATURES = [
   { icon: <Document size={120} />, tone: 'marigold', title: 'Fills in seconds', body: 'Name, email, education, links, work history. Fillie types them into any form from the profile you set up once.' },
@@ -79,7 +80,10 @@ export function App() {
   }, [back, account.ready, account.session?.access_token]);
 
   useEffect(() => {
-    if (account.paid && (back === 'pending' || back === 'confirming')) setBack('unlocked');
+    if (account.paid && (back === 'pending' || back === 'confirming')) {
+      setBack('unlocked');
+      void celebrate(); // a quiet confetti burst, once, when the payment is confirmed
+    }
   }, [account.paid, back]);
 
   const openPay = () => setPayOpen(true);
