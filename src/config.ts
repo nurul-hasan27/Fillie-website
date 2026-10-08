@@ -24,9 +24,9 @@ export const SITE = {
  * expect real contact details here, so fill these in before applying for live payments.
  */
 export const BUSINESS = {
-  legalName: 'Nurul Hasan',
+  legalName: 'Fillie',
   /** Where customers can reach you (shown on the Contact page). */
-  email: 'support@YOUR-DOMAIN.com',
+  email: 'fillie.company@gmail.com',
   phone: '',
   address: '',
   /** Days after paying during which a refund is given on request. */
